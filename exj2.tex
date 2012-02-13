@@ -1,0 +1,647 @@
+%%% This is a LaTeX2e document.
+%%%
+%%% It documents the use of `haskell.sty'.
+%%%
+%%% Manuel M. T. Chakravarty <chak@cse.unsw.edu.au> 1998
+%%%
+%%% $Id: haskell-example.tex,v 1.8 2001/02/22 04:52:13 chak Exp $
+%%%
+%%% This file is free software; you can redistribute it and/or modify
+%%% it under the terms of the GNU General Public License as published by
+%%% the Free Software Foundation; either version 2 of the License, or
+%%% (at your option) any later version.
+%%%
+%%% This file is distributed in the hope that it will be useful,
+%%% but WITHOUT ANY WARRANTY; without even the implied warranty of
+%%% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%%% GNU General Public License for more details.
+
+\documentclass[11pt,a4j]{jsarticle}
+
+% \usepackage{a4}
+\usepackage{haskell}
+\usepackage{amsmath} % for \AmS only
+\usepackage{ascmac}
+% \usepackage{okumacro}
+
+% backslash hack (uses the answer to Exercise 7.5 from Knuth's TeXbook)
+%
+{
+  \catcode`/=0 
+  \catcode`\\=13 
+  /gdef/backslashchar{/string\}
+}
+\newcommand{\cmd}[1]{\texttt{\backslashchar#1}}
+
+
+\begin{document}
+
+\title{\LaTeX2e{}用Haskellスタイル}
+\author{%
+  Manuel M. T. Chakravarty\\
+  Institute of Information Sciences and Electronics\\
+  University of Tsukuba, Japan\\[1ex]
+  \texttt{chak@cse.unsw.edu.au}\\
+  \texttt{www.cse.unsw.edu.au/\string~chak}
+  }
+\date{Version 1.0e (for Version 1.0e of the style file)}
+\maketitle
+
+\begin{abstract}
+ソースコードをそのまま貼り付けてverbatimよりはマシに整形する
+目的にはlistings環境(と、Haskellのための追加設定)が便利である。
+(ソースコードそのままではなく)
+編集コストをかけてHaskellソースをより美しく組版する環境を
+\verb+haskell.sty+が提供する。
+\end{abstract}
+
+\section{誰のためのもの?}
+
+% Setting large pieces of code in an \texttt{verbatim} is ugly and makes it
+% difficult to uses subscripts or set comments in a proportional type face.
+大量のコード断片を\texttt{verbatim}環境で整形するのは見苦しいし、
+添え字を使ったりコメントを(等幅でない)プロポーショナルフォントで
+書いたりするのが難しい。
+% On the other hand, the use of, for example, \TeX's math mode requires
+% the use of additional macros to achieve proper kerning in multi-letter
+% identifiers and to typeset application by juxtaposition.
+一方、例えば\TeX{}の数式モードを使うのは、
+複数文字の名前を正しくカーニングしたり、
+関数適用の意味の名前の並びを整形するのに
+するのに追加のマクロを必要とする。
+% The \texttt{haskell} style provides environments and macros that
+% simplify setting Haskell~\cite{haskell,haskell14} programs in
+% \LaTeX~\cite{lamport:latex}.
+この\texttt{haskell}スタイルは\LaTeX~\cite{lamport:latex}中で
+Haskell~\cite{haskell,haskell14}プログラムを簡単に整形する
+環境とマクロを提供する。
+% While the style is specifically geared towards Haskell, it should also
+% be useful for other functional languages like ML or Nesl.
+このスタイルはHaskell用に特化しているが
+\footnote{Joe:specifically geared towards Haskell}、
+MLやNeslといった他の関数型言語にとっても有用であろう。
+
+% The famous \<map\> function can be set as follows:
+\begin{screen}
+有名な\<map\>関数は次のように整形される。
+%
+\begin{haskell*}
+  map          &::& (\alpha\to\beta)\to[\alpha]\to[\beta]
+  &\hscom{型宣言 type assertion}\\
+  map f []     &=& []
+  &\hscom{\<[]\> は空リスト}\\
+  map f (x:xs) &=& f x : map f xs
+  &\hscom{\<:\> は中置きリスト構成子}
+\end{haskell*}
+%
+% Under this definition, \<map (+1) [1, 2, 3]\> evaluates to \<[2, 3, 4]\>.
+この定義の元で\<map (+1) [1, 2, 3]\>を評価すると\<[2, 3, 4]\>になる。
+\end{screen}
+
+% The previous example was set using the following input:
+上の例のソースを以下に示す。
+%
+\begin{screen}
+\begin{quote}
+\begin{verbatim}
+有名な\<map\>関数は次のように整形される。
+%
+\begin{haskell*}
+  map          &::& (\alpha\to\beta)\to[\alpha]\to[\beta]
+  &\hscom{型宣言 type assertion}\\
+  map f []     &=& []
+  &\hscom{\<[]\> は空リスト}\\
+  map f (x:xs) &=& f x : map f xs
+  &\hscom{\<:\> は中置きリスト構成子}
+\end{haskell*}
+%
+この定義の元で\<map (+1) [1, 2, 3]\>を評価すると\<[2, 3, 4]\>になる。
+\end{verbatim}
+\end{quote}
+\end{screen}
+%
+% There are a number of points worth noting.
+利点はたくさんある。
+\footnote{There are a number of points worth noting.}
+% In a Haskell phrase, math mode commands, such as \cmd{alpha} are
+% available, but nevertheless, space characters can be used to denote
+% juxtaposition of expressions (i.e., application in Haskell) and
+% multi-letter identifiers are set properly.
+Haskell文中で\cmd{alpha}のような数式モードのコマンドが使用可能である。
+にもかかわらず、空白文字は式の並び(つまりHaskellの関数適用)を
+表すのに使え、
+また複数文字の名前も正しく整形される。
+% Compare $ffoo$ and \<ffoo\>, set by \verb|$ffoo$| and \verb|\<ffoo\>|,
+% respectively.
+\verb|$ffoo$|と\verb|\<ffoo\>|を整形した
+$ffoo$と\<ffoo\>を比べてみて欲しい。
+
+% \textit{The examples in the following sections do not provide the \LaTeX\ 
+% sources used to typeset the examples in the formatted version.  Please look
+% at the source file to see the code.}
+%{\em これ以降、例に対して\LaTeX{}ソースを示すことはしない。
+%必要ならこの文書のソースを参照してほしい。}
+以降の例について、そのソースは付録でまとめて示す。
+
+\section{基本的な使用法}
+
+\subsection{Haskellモード}
+
+% The environment \texttt{haskell} as well as the commands \cmd< and \cmd>
+% enter Haskell mode.
+\texttt{haskell}環境とコマンド\cmd< から \cmd> の間でHaskellモードに入る。
+% Keywords can be set in \textbf{bold face} using \cmd{hskwd}.
+予約語は\cmd{hskwd}により\textbf{bold face}で整形できる。
+% Within a \texttt{haskell} environment, columns are defined using the
+% alignment character \texttt{\&}.
+\texttt{haskell}環境の中では、桁位置は桁合わせ文字\texttt{\&}で定義される。
+% Usually, it is not necessary to wrap relations into alignment
+% characters, but instead a single alignment to the right of the
+% relational symbol suffices (just like AMS\LaTeX's \texttt{align}
+% environment).
+通常は関係記号を桁合わせ文字で囲む必要はなく、
+(\AmS-\LaTeX{}の\texttt{align}環境のように)
+関係記号の右側
+\footnote{サンプルを見るに、\verb+&+が先、関係記号が後になっていて逆である。}
+だけに桁合わせ文字を置けば充分である。
+% However, sometimes we want to align relational symbols of
+% different size (i.e., the \<::\> of a type assertion and the \<=\> of the
+% corresponding equations).
+しかし、型宣言の\<::\>とそれに対応する等式の\<=\>のように、
+大きさの違う関係記号を揃えたいような場合には、
+% In this case, the star form \texttt{haskell*} should be used, which
+% centers the material enclosed between the first and second alignment
+% character.
+アスタリスク付きの\texttt{haskell*}環境を使う。
+これは一つめと二つめの桁合わせ文字に囲まれた内容(material)を中揃えする。
+
+\subsection{コメント}
+
+% The unary command \cmd{hscom} is used to set single line comments.
+一行コメントを整形するには、1引数コマンド\cmd{hscom}を使う。
+%
+\begin{itembox}[l]{hscom}
+\begin{haskell*}
+  \hskwd{data} Maybe \alpha
+  & = & Nothing      &\hscom{結果なし}\\
+  & | & Just \alpha  &\hscom{普通に\<\alpha\>型の値}
+\end{haskell*}
+\end{itembox}
+%
+% The second line shows that in a comment, you can again enter Haskell mode.
+2行めはコメントの中でさらにHaskellモードに入っている例である。
+% This is particularly important when identifiers appear in comments or
+% when you want to cite some program fragement, as the font choice in
+% these cases should be identical to the fonts in the displayed program.
+これは、コメント中に名前を書いたり、プログラム断片を引用したりするとき、
+書体をプログラムと同じにできるという意味で特に重要である。
+
+% Sometimes, we like to omit some details of an algorithm and instead give an
+% informal description.  This is achieved with \cmd{hsinf}.
+アルゴリズムの詳細を省略して、形式的でない説明で代用させたい場合などには
+\cmd{hsinf}を使う。
+%
+\begin{itembox}[l]{hsinf}
+\begin{haskell}
+  main &= \hsdo{
+    config \hsfrom \hsinf{設定ファイルを読み込む}\\
+    result \hsfrom \hsinf{\<config\>に従って入力を処理}\\
+    putStr result
+    }
+\end{haskell}
+\end{itembox}
+
+\subsection{数式モードからの機能}
+
+% You can use all sorts of symbols, subscripts, and superscripts from \LaTeX's
+% math mode in Haskell mode.
+\LaTeX{}の数式モードの記号、添え字、上付文字などのあらゆる機能が
+Haskellモードでも使える。
+% This includes \TeX's relational symbols, for example, $\geq$ or
+% $\not=$, and greek characters for type variables.
+これには\TeX{}の関係記号も含む、例えば$\geq$や$\not=$など、
+また型変数に使うギリシャ文字も使える。
+
+\subsection{補足}
+細かいコマンドがいくつかundocumentedなので、
+\ref{sec:reference}も参照のこと。
+
+\subsection{位置揃え Aligned Material}
+
+% Larger function bodies usually require the use of aligned subphrases to
+% visually structure the definition.
+関数本体が大きくなると、
+定義を視覚的に構造化するために部分的に位置揃えする必要がある。
+% The command \cmd{hsalign} generates an alignment with an arbitrary
+% number of columns.
+コマンド\cmd{hsalign}は任意の桁数での位置揃えを行う。
+% Consider the function \<transpose\> from Haskell's standard library:
+Haskell標準ライブラリの\<transpose\>関数を考えよう。
+%
+\begin{itembox}[l]{hsalign}
+\begin{haskell*}
+transpose &::& [[a]]\to [[a]]\\
+transpose &=&
+\hsalign{
+  foldr\\
+  \quad(\lambda xs xss\to zipWith (:) xs (xss\hsapp repeat []))\\
+  \quad[]
+  }
+\end{haskell*}
+\end{itembox}
+% For several constructs that require alignments, there are predefined
+% macros internally using \cmd{hsalign}.
+桁揃えが必要になるいくつかの構文要素について、
+\cmd{hsalign}を内部で使ったマクロがあらかじめ用意してある。
+% For example for \<\hskwd{let}\> expressions, we have \cmd{hslet}:
+例えば、\<\hskwd{let}\>式を整形する\cmd{hslet}コマンドがある。
+%
+\begin{itembox}[l]{hslet}
+\begin{haskell}
+  foo a = \hslet{
+    x &= 1\\
+    y &= 2
+    }{%
+    x+y
+    }
+\end{haskell}
+\end{itembox}
+%
+% Another macros is \cmd{hsif} for if-then-else expression.
+if-then-else式を整形する\cmd{hsif}マクロもある。
+% In the following, example, we see that aligned subphrases can be nested:
+下の例では桁揃えの入れ子を行っている。
+%
+\begin{itembox}[l]{hsif}
+\begin{haskell}
+  foo a = \hsif{a == 0}{%
+    \hslet{%
+      x = a + 1
+      }{%
+      x}
+    }{%
+    a}
+\end{haskell}
+\end{itembox}
+
+% Aligned material frequently gets big enough to require to break the
+% surrounding alignment.
+桁揃えが大きくなりすぎて、改行によって外側の桁揃えを破棄する場合がある。
+% This achieved with \cmd{hsbody}:
+これを整形するには\cmd{hsbody}を使う。
+%
+\begin{itembox}[l]{hsbody}
+\begin{haskell*}
+  calculateNextPos &::& Pos\to Mover\to State\to [Pos]\\
+  calculateNextPos oldPos move state &=&\relax
+  \hsbody{%
+    map &(\lambda (lowerHalf, upperHalf)\to (upperHalf, lowerHalf) \hscom{この行}\\
+        &(compare oldPos (move state))
+    }
+\end{haskell*}
+\end{itembox}
+
+% A canned use of \cmd{hsbody} is provided by \cmd{hswhere} for
+% \<\hskwd{where}\> clauses:
+\cmd{hsbody}コマンドの定番の使い方は\<\hskwd{where}\>節であるが、
+さらにそれをマクロにした\cmd{hswhere}コマンドがある。
+%
+\begin{itembox}[l]{hswhere}
+\begin{haskell*}
+partition       &::& (a\to Bool)\to [a]\to ([a],[a])\\
+partition p xs  &=& foldr select ([],[]) xs
+\hswhere{%
+  select x (ts,fs) &\mid p x       &= (x:ts,fs)\\
+                   &\mid otherwise &= (ts, x:fs)
+  }
+\end{haskell*}
+\end{itembox}
+
+\section{上級の機能}
+
+% If you need to set complex documents, you may want to know some of the
+% more subtle points of the Haskell mode.
+複雑な文書を整形するには、
+Haskellモードのより微妙な点を理解する必要がある。
+% Generally, whenever you attempt to use Haskell mode in sophistcated
+% ways or try to define your own commands, keep in mind that spaces
+% matter in Haskell mode, i.e., Haskell mode uses \TeX's
+% \cmd{obeyspaces}.
+一般に、技巧的にHaskellモードを使おうとする、
+または独自のコマンドを定義しようとするとき、
+Haskellモードでは空白が重要であることに留意が必要である。
+すなわち、Haskellモードは\TeX{}の\cmd{obeyspaces}を使う。
+% This changes \TeX's behaviour in subtle ways.
+これが\TeX{}の挙動を微妙に変化させる。
+
+\subsection{コマンドの定義}
+
+% Commands that are used in Haskell mode should be defined with
+% \cmd{hscommand} instead of \cmd{newcommand}.
+Haskellモードの中で使うコマンドは、
+\cmd{newcommand}の代わりに\cmd{hscommand}で定義する。
+% The arguments expected by \cmd{hscommand} are the same as those for
+% \cmd{newcommand} (however, there is no \texttt*-version of \cmd{hscommand}).
+\cmd{hscommand}の引数は\cmd{newcommand}と同様である。
+(ただし、\cmd{hscommand}コマンドに\texttt* 版はない。)
+% \cmd{hscommand} works slightly different, for example, with respect to
+% processing spaces in the body of the command definition, to allow
+% application by juxtaposition.
+\cmd{hscommand}の動作は少し異なる、例えば、
+続けて書くことが関数適用を表すとするために、
+コマンド定義の本体での空白を処理する点に関して。
+
+\subsection{『真の』数式モードに入る}
+
+% Haskell mode is rather similar to math mode, to allow using special
+% characters, subscripts, and so forth.
+Haskellモードは、数式モードの特殊な文字や下付き添え字などが使えるという
+意味で、数式モードによく似ている。
+% However, sometimes, it is desirable to enter plain math mode.
+しかし、純粋な数式モードに入る方がよい場合がある。
+% Within a Haskell phrase, the commands \cmd( and \cmd) may be used to
+% enter \LaTeX's standard math mode.
+Haskellの途中で、\LaTeX{}標準の数式モードに入るには、
+コマンド \cmd( と \cmd) を使う。
+% This is often helpful, when defining macros \footnote{Sometimes it may
+% be necessary to prefix such a use of \cmd( by \cmd{relax}, when the
+% macro is used behind a \texttt{\string&}.}  and, for example, the
+% macro \cmd{hscom} is defined this way.
+これはマクロを定義するとき
+\footnote{\cmd( の前に \cmd{relax}を置く必要がある場合がある。
+マクロが\texttt{\string&}の後ろで使われる場合である。}
+に有用であり、
+例えば、マクロ\cmd{hscom}はこれを使って定義されている。
+
+\subsection{変換規則で使う} \label{sec:position}
+
+% For example in transformation rules, we want complex expressions, such
+% as let-in constructs to be vertically centered.
+変換規則の中などでは、let-in構造のインデントを揃えるといったような
+複雑な式を記述したい。
+% This is achieved by specifying an optional argument giving the
+% alignment, for example, \cmd{hslet[c]\{$\cdots$\}}.
+これは位置揃えのためのオプション引数を指定することで解決できる。
+例えば\cmd{hslet[c]\{$\cdots$\}}のように。
+%
+\begin{itembox}[l]{position}
+\begin{haskell}
+  \hslet[c]{%
+    x &= e
+    }{C[x]}
+  \Longrightarrow
+  C[e]
+\end{haskell}
+\end{itembox}
+%
+% By default boxes are vertically aligned by the baseline of the first
+% line (corresponding to the option \texttt{t}).
+標準では、ボックスは垂直方向には最初の行のbaselineで揃えられる。
+(オプション\texttt{t}に対応する。)
+% Using \texttt{c} the alignment is in the center and with \texttt{b} it
+% is at the baseline of the last line.
+\texttt{c}を指定すると中央揃え、\texttt{b}では最終行のbaselineで揃えられる。
+
+\subsection{\TeX{}の数式パーザ}
+
+% \TeX\ is capable of understanding some of the structure of formulae in
+% math mode.
+\TeX{}の数式モードは数式の構造をある程度理解する能力を持つ。
+% The parsed structure influences the space inserted between the
+% elements of a formula.
+分析された構造は数式の要素間に挿入される空白に影響する。
+% Compare 
+次の2つの例を比較してみよう。
+%
+\begin{quote}
+  \begin{tabular}{l@{~$\Longrightarrow$~}l}
+    \texttt{3+4}     & \(3+4\)\quad\\
+    \texttt{3\{+\}4} & \(3{+}4\)
+  \end{tabular}
+\end{quote}
+%
+% In the first case, \TeX\ groks that \texttt{+} is a binary operator
+% applied to $3$ and $4$, but not in the second.
+前者\TeX{}は\texttt{+}が二項演算子で$3$と$4$に適用されていると
+理解している。しかし後者はそうではない。
+% Details are provided in \emph{The \TeX{}book}~\cite{knuth:tex}.
+詳細は\emph{The \TeX{}book}~\cite{knuth:tex}にある。
+
+%\section{Tests}
+
+%\begin{haskell}
+%foo x_1 &= x_1 + 10 &\hscom{\<x_1\> is increased by \<10\>}
+%\end{haskell}
+
+%\begin{haskell}
+%  foo x &=& \hslet{
+%    y &=\hsif{x == 0}{bar 1}{%
+%      \hslet{%
+%        z & = foobar x 5 + x
+%        }{
+%        foo' z}}
+%    }{
+%    bar' y}
+%  \\
+%  foo x &=& \hslet{
+%    y &=\hsif{x == 0}{bar 1}{%
+%      \hslet{%
+%        z & = foobar x 5 + x
+%        }{
+%        foo' z}}
+%    }{
+%    bar' y}
+%\end{haskell}
+
+\section{Copyleft}
+
+The Haskell mode is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the Free
+Software Foundation; either version 2 of the License, or (at your option) any
+later version.
+
+The Haskell mode is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+details.
+
+\bibliographystyle{alpha}
+\bibliography{haskell-example}
+
+\appendix
+
+翻訳と蛇足の追加：大久保 \verb+ohkubo@ist.aichi-pu.ac.jp+
+
+\section{コマンド一覧} \label{sec:reference}
+\begin{tabular}{l|r|l}
+\gt コマンド & \gt 引数 & \gt 機能 \\ \hline
+\cmd< \cmd> & -- & インラインHaskellモード \\
+haskell, haskell* & -- & ブロックHaskell環境 \\
+\cmd{hscom} & 1 & コメント \\
+\cmd{hskwd} & 1 & 予約語 \\
+\cmd{hsinf} & 1 & 非形式的説明 \\
+\cmd{hschar} & 1 & 文字リテラル \<\hschar{c}\> \\
+\cmd{hsstr} & 1 & 文字列リテラル \<\hsstr{hoge}\> \\
+\cmd{hsfrom} & 0 & 左向き矢印 $\leftarrow$ ちなみに右向きは \cmd{to} \\
+\cmd{hsalign} & 1 & 位置揃え \\
+\cmd{hsnoalign} & 1 & 位置揃えしないで出力 \\
+\cmd{hsbody} & 1 & インデント位置を1段目に強制的に設定 \\
+\cmd{hscommand} & 1 & コマンド定義 \\
+\cmd{hslet} & 2 & let式 \\
+\cmd{hsif} & 3 & if式 \\
+\cmd{hscase} & 2 & case分岐 \\
+\cmd{hswhere} & 1 & where節 \\
+\cmd{hsdo} & 1 & doブロック \\
+\cmd{hsapp} & 0 & リストの連結 \<\hsapp\> \\
+\cmd{hsifix} & 1 & 関数を中置演算子にする \<1 \hsifix{foo} 2\> \\ \hline
+\cmd{hsus} & 0 & パターンマッチのワイルドカード \<\hsus\> \\
+\cmd{hstchar} & 1 & Hutton本風文字リテラル \<\hstchar{c}\> \\
+\cmd{hststr} & 1 & Hutton本風文字列リテラル \<\hststr{hogeほげ}\> \\
+\cmd{hsaligned} & 0 & \cmd{hsalign}とその派生コマンドの終了時の改行を補正(暫定版) \\
+\cmd{vs} & 0 & Visual Space \<\hstchar{\vs}\> \\
+\cmd{bs} & 1 & Backslash \<\hststr{\bs{n}}\> 引数なしでも使える \\
+\cmd{hsbind} & 0 & \<\hsbind\> \\
+\cmd{hsbin} & 0 & \<\hsbin\> \\
+\cmd{hseq} & 0 & 等しい \<\hseq\>
+\end{tabular}
+
+\vspace{1em}
+% 本来動いているソースを取り込んで\TeX{}化する場合、
+% \cmd{hsifix}は特に出番はないだろう。
+% 演算子と認識して両側を開けてくれるので意味あり。
+\cmd{hschar}, \cmd{hsstr}は使わないとイタリックで出力されるので
+利用するよう修正するほうがよい。
+otfパッケージと相性が悪いかもしれない。
+
+\cmd{hslet}, \cmd{hsif}, \cmd{hscase}, \cmd{hsdo}
+はもう一つオプションパラメータを先頭にとる。
+その1引数めは\cmd{hsalign}のオプションパラメータになる。
+これは\ref{sec:position}節にあるように高さ方向の位置揃えを
+\texttt{t, b, c}で指定する。
+
+\section{サンプルのソース}
+
+\paragraph{hscom}
+\begin{verbatim}
+\begin{haskell*}
+  \hskwd{data} Maybe \alpha
+  & = & Nothing      &\hscom{結果なし}\\
+  & | & Just \alpha  &\hscom{普通に\<\alpha\>型の値}
+\end{haskell*}
+\end{verbatim}
+
+\paragraph{hsinf}
+\begin{verbatim}
+\begin{haskell}
+  main &= \hsdo{
+    config \hsfrom \hsinf{設定ファイルを読み込む}\\
+    result \hsfrom \hsinf{\<config\>に従って入力を処理}\\
+    putStr result
+    }
+\end{haskell}
+\end{verbatim}
+
+\paragraph{hsalign}
+\begin{verbatim}
+\begin{haskell*}
+transpose &::& [[a]]\to [[a]]\\
+transpose &=&
+\hsalign{
+  foldr\\
+  \quad(\lambda xs xss\to zipWith (:) xs (xss\hsapp repeat []))\\
+  \quad[]
+  }
+\end{haskell*}
+\end{verbatim}
+
+\paragraph{hslet}
+\begin{verbatim}
+\begin{haskell}
+  foo a = \hslet{
+    x &= 1\\
+    y &= 2
+    }{%
+    x+y
+    }
+\end{haskell}
+\end{verbatim}
+
+\paragraph{hsif}
+\begin{verbatim}
+\begin{haskell}
+  foo a = \hsif{a == 0}{%
+    \hslet{%
+      x = a + 1
+      }{%
+      x}
+    }{%
+    a}
+\end{haskell}
+\end{verbatim}
+
+\paragraph{hsbody}
+
+\begin{verbatim}
+\begin{haskell*}
+  calculateNextPos &::& Pos\to Mover\to State\to [Pos]\\
+  calculateNextPos oldPos move state &=&\relax
+  \hsbody{%
+    map &(\lambda (lowerHalf, upperHalf)\to (upperHalf, lowerHalf) \hscom{この行}\\
+        &(compare oldPos (move state))
+    }
+\end{haskell*}
+\end{verbatim}
+
+\paragraph{hswhere}
+
+\begin{verbatim}
+\begin{haskell*}
+partition       &::& (a\to Bool)\to [a]\to ([a],[a])\\
+partition p xs  &=& foldr select ([],[]) xs
+\hswhere{%
+  select x (ts,fs) &\mid p x       &= (x:ts,fs)\\
+                   &\mid otherwise &= (ts, x:fs)
+  }
+\end{haskell*}
+\end{verbatim}
+
+\paragraph{position}
+\begin{verbatim}
+\begin{haskell}
+  \hslet[c]{%
+    x &= e
+    }{C[x]}
+  \Longrightarrow
+  C[e]
+\end{haskell}
+\end{verbatim}
+
+\section{問題}
+
+\begin{itemize}
+\item
+オリジナルのままだと \cmd< というコマンドが多重定義になって怒られる。
+そのため\cmd{renewcommand}に変更している。
+これは\texttt{tabular}環境のコマンド。
+%
+\item
+一部の記号がcourierで出力されない。
+アンダーライン文字の横幅が短いため、
+もう少し強調するように\cmd{hsus}を用意している。
+結果をPDF出力した後でテキストモードでコピーペーストしたときに
+アンダーライン文字が出ない点が不便。
+% 他にも波カッコなど、フォントの文字がそのまま出ないものがあるので何とかしたい。
+\\
+\begin{tabular}{lllll}
+\cmd{verb} &:& \verb+{ }+ & \verb-[ ]-  & \verb1_1 \\
+haskell style &:& \<\{ \}\> & \<[ ]\> & \<\_, \hsus\> (アンダーライン文字, \cmd{hsus})
+\end{tabular}
+%
+\item
+\cmd{hsalign}とその派生コマンドでインデントを行った後、次の行との間隔が狭くなる。
+これを補正するために\cmd{hsaligned}を定義したが、
+現状は逆に間隔が広がりすぎるので暫定版としてある。
+(\cmd{hsnoalign}で解決できる？)
+\end{itemize}
+
+\end{document}
